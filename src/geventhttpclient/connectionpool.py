@@ -256,6 +256,9 @@ else:
                 self.ssl_context = ssl_context_factory()
                 self.ssl_context.load_verify_locations(cafile=ca_certs)
             self.ssl_context.check_hostname = not self.insecure
+            # sibiryakov
+            if self.insecure:
+                self.ssl_context.verify_mode = gevent.ssl.CERT_NONE
 
         def after_connect(self, sock):
             super(SSLConnectionPool, self).after_connect(sock)
