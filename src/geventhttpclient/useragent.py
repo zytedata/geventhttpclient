@@ -209,6 +209,8 @@ class CompatResponse(object):
         except IndexError:
             # No content-encoding header set
             content_type = 'identity'
+        # sibiryakov: disabling decoding for now
+        content_type = 'identity'
 
         if content_type == 'gzip':
             ret = self.unzipped(gzip=True)
