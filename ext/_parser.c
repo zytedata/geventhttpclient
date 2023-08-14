@@ -87,7 +87,15 @@ static int on_http_data_cb(llhttp_t* parser, const char *at, size_t length, cons
     PyObject* self = (PyObject*)parser->data;
     if (PyObject_HasAttrString(self, python_cb)) {
         PyObject* callable = PyObject_GetAttrString(self, python_cb);
+        if (callable == NULL) {
+            return -1;
+        }
         PyObject* args = Py_BuildValue("(y#)", at, length);
+        if (args == NULL) {
+            Py_DECREF(callable);
+            return -1;
+        }
+
         PyObject* result = PyObject_CallObject(callable, args);
         PyObject* exception = PyErr_Occurred();
         if (exception != NULL) {
@@ -96,7 +104,9 @@ static int on_http_data_cb(llhttp_t* parser, const char *at, size_t length, cons
             if (PyObject_IsTrue(result))
                 fail = -1;
         }
-        Py_XDECREF(result);
+        if (result != NULL) {
+            Py_XDECREF(result);
+        }
         Py_DECREF(callable);
         Py_DECREF(args);
     }
